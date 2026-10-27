@@ -66,6 +66,68 @@ export function StartScreen({ dispatch }: { dispatch: GameDispatch }) {
   )
 }
 
+export function RestartDialog({
+  open,
+  currentDifficulty,
+  onClose,
+  onRestart,
+}: {
+  open: boolean
+  currentDifficulty: Difficulty
+  onClose: () => void
+  onRestart: (difficulty: Difficulty) => void
+}) {
+  const [diff, setDiff] = useState<Difficulty>(currentDifficulty)
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur" role="dialog" aria-modal="true" aria-labelledby="restart-title" onClick={onClose}>
+      <div className="w-full max-w-xl rounded-md border border-border bg-card p-5" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 id="restart-title" className="text-lg font-semibold">O’yinni qayta boshlash</h2>
+            <p className="text-sm text-muted-foreground">Joriy progress tozalanadi. Qaysi qiyinchilik darajasidan boshlamoqchisiz?</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Yopish" className="rounded p-1 hover:bg-secondary">
+            <X className="size-4" />
+          </button>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          {(Object.keys(DIFFICULTY) as Difficulty[]).map((d) => (
+            <button
+              key={d}
+              type="button"
+              onClick={() => {
+                setDiff(d)
+                onRestart(d)
+              }}
+              className={cn(
+                'rounded border p-3 text-left transition-colors',
+                diff === d ? 'border-primary bg-primary/10' : 'border-border hover:bg-secondary',
+              )}
+            >
+              <span className={cn('block text-sm font-semibold', diff === d && 'text-primary')}>{DIFFICULTY[d].label}</span>
+              <span className="mt-1 block font-mono text-[10px] text-muted-foreground">Boshlang’ich: {usd(DIFFICULTY[d].cash)}</span>
+              <span className="mt-2 block text-[11px] leading-snug text-muted-foreground">{DIFFICULTY[d].description}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-5 flex justify-between gap-3">
+          <button type="button" onClick={onClose} className="rounded border border-border px-4 py-2 text-sm hover:bg-secondary">
+            Bekor qilish
+          </button>
+          <button type="button" onClick={() => onRestart(diff)} className="rounded bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
+            Boshlash
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function GameOver({ s, dispatch }: { s: GameState; dispatch: GameDispatch }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/85 p-4 backdrop-blur" role="alertdialog" aria-labelledby="go-title">
